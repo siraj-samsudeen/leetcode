@@ -1,3 +1,6 @@
+# Binary Tree Inorder Traversal - LeetCode
+# https://leetcode.com/problems/binary-tree-inorder-traversal/
+
 # Definition for a binary tree node.
 # class TreeNode:
 #     def __init__(self, val=0, left=None, right=None):
@@ -5,19 +8,19 @@
 #         self.left = left
 #         self.right = right
 class Solution:
-#     Recursion Top Down
+#     recursion top down
     def inorderTraversal(self, root: Optional[TreeNode]) -> List[int]:
-        res = []
-        def inorder(root):
+        def inorder(root, res=[]):
             if root is None:
                 return
-            inorder(root.left)
+            inorder(root.left, res)
             res.append(root.val)
-            inorder(root.right)
-        inorder(root)
-        return res
+            inorder(root.right, res)
+            return res
         
-#   Recursion bottom up
+        return inorder(root)
+
+#     recursion bottom up
     def inorderTraversal(self, root: Optional[TreeNode]) -> List[int]:
         def inorder(root):
             if root is None:
@@ -25,16 +28,16 @@ class Solution:
             res = inorder(root.left)
             res.append(root.val)
             res.extend(inorder(root.right))
-            return ans
+            return res
         return inorder(root)
 
-#   one liner - elegant
+#     one liner - elegant
     def inorderTraversal(self, root: Optional[TreeNode]) -> List[int]:
         def inorder(root):
-            return  inorder(root.left) + [root.val] + inorder(root.right) if root else []
+            return inorder(root.left) + [root.val] + inorder(root.right) if root else []
         return inorder(root)
     
-#   Iterative
+#     iterative
     def inorderTraversal(self, root: Optional[TreeNode]) -> List[int]:
         res = []
         stack = []
@@ -47,8 +50,8 @@ class Solution:
                 res.append(root.val)
                 root = root.right
         return res
-
-#   Morris
+    
+#     morris
     def inorderTraversal(self, root: Optional[TreeNode]) -> List[int]:
         res = []
         while root:
@@ -67,4 +70,3 @@ class Solution:
                     temp.right = root
                     root = root.left
         return res
-                
