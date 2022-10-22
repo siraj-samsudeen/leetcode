@@ -9,8 +9,8 @@
 #         self.right = None
 
 from collections import deque
+import queue
 class Codec:
-
     def serialize(self, root):
         """Encodes a tree to a single string.
         
@@ -22,19 +22,16 @@ class Codec:
         res = []
         
         while que:
-            node = que.popleft()
-            if node is None:
-                res.append("")
-                continue
+            current = que.popleft()
+            if current:
+                que.append(current.left)
+                que.append(current.right)
+                res.append(str(current.val))
             else:
-                res.append(str(node.val))
-            
-            que.append(node.left)
-            que.append(node.right)
+                res.append("") #we append an empty string for null
         
         return ",".join(res)
-            
-
+        
     def deserialize(self, data):
         """Decodes your encoded data to tree.
         
@@ -43,25 +40,29 @@ class Codec:
         """
         if not data:
             return
-
-        a = data.split(",")
+                
+        data = data.split(",")
+        
+        root = TreeNode(data[0])
+        i = 1
+        
         que = deque()
-        root = TreeNode(a[0])
         que.append(root)
         
-        i = 1
         while que :
-            node = que.popleft()
-            if a[i] :
-                node.left = TreeNode(a[i])
-                que.append(node.left)
-            i+= 1
-            if a[i] :
-                node.right = TreeNode(a[i])
-                que.append(node.right)
-            i+= 1
-        return root
+            current = que.popleft()
+            if data[i] :
+                current.left = TreeNode(data[i])
+                que.append(current.left)
+            i += 1
+            if data[i] :
+                current.right = TreeNode(data[i])
+                que.append(current.right)
+            i += 1
 
+        return root
+            
+        
 # Your Codec object will be instantiated and called as such:
 # ser = Codec()
 # deser = Codec()
