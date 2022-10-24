@@ -25,5 +25,13 @@ class Solution:
                 ans.pop()
                 ans.append([start,end])
         return ans
-                
-                
+    
+    # Trying to mimick the brief solution from the forum
+    def merge(self, intervals: List[List[int]]) -> List[List[int]]:
+        ans = []
+        for i in sorted(intervals, key=lambda x:x[0]):
+            if ans and i[0] <= ans[-1][1]:
+                ans[-1][1]=max(ans[-1][1], i[1])
+            else:
+                ans.append(i)
+        return ans
