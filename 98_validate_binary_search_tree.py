@@ -9,10 +9,10 @@ class Solution:
     def isValidBST(self, root: Optional[TreeNode]) -> bool:
         def withinRange(node, min, max):
             if node is None: return True
-            if node.val < min or node.val > max:
+            if min < node.val < max:
+                return withinRange(node.left, min, node.val) \
+                    and withinRange(node.right, node.val, max)
+            else:
                 return False
-            return withinRange(node.left, min, node.val-1) \
-                and withinRange(node.right, node.val+1, max)
 
-        return withinRange(root, float('-inf'), float('inf'))
-        
+        return withinRange(root, -math.inf, math.inf)
