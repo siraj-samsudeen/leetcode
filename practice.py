@@ -1,4 +1,4 @@
-# Two Sum - LeetCode
+# 1 Two Sum - LeetCode
 # https://leetcode.com/problems/two-sum/description/
 
 class Solution:
@@ -47,7 +47,63 @@ class Solution:
           # this means we need to reduce from the total, so move to the left
           j -= 1    
 
-# Add Two Numbers - LeetCode
+# v2
+class Solution:
+    def twoSum(self, nums: List[int], target: int) -> List[int]:
+        for i in range(len(nums)):
+            for j in range(i+1, len(nums)):
+                if nums[i] + nums[j] == target :
+                    return [i, j]
+
+    # use hashmap for lookup
+    def twoSum(self, nums: List[int], target: int) -> List[int]:
+        map = {item: i for i, item in enumerate(nums)}
+        for i, item in enumerate(nums):
+            item_needed = target - item
+            if item_needed in map and map[item_needed] != i: 
+                return [i, map[item_needed]]
+    
+    # single pass with hashmap
+    def twoSum(self, nums: List[int], target: int) -> List[int]:
+        map = {}
+        for i, item in enumerate(nums):
+            item_needed = target - item
+            if item_needed in map:
+                return [i, map[item_needed]]
+            else:
+                map[item] = i
+                
+    # sort the array and use 2-pointers
+    def twoSum(self, nums: List[int], target: int) -> List[int]:
+        sorted_nums = sorted(nums)
+
+        i = 0
+        j = len(nums) - 1
+        while i < j: 
+            total = sorted_nums[i] + sorted_nums[j]
+
+            if total < target:
+                i += 1
+            elif total > target :
+                j -= 1
+            else:
+                break
+        
+        # now we need to find these items in the original unsorted array
+        item1 = sorted_nums[i]
+        item2 = sorted_nums[j]
+
+        item1_index = nums.index(item1)
+        item2_index = nums.index(item2)
+
+        # TODO Got this part wrong
+        if item1_index == item2_index:
+            item2_index = nums.index(item2, item1_index + 1)
+
+        return [item1_index, item2_index]
+          
+
+# 2 Add Two Numbers - LeetCode
 # https://leetcode.com/problems/add-two-numbers/description/
 
 # Definition for singly-linked list.
@@ -85,7 +141,30 @@ class Solution:
         
         return head
 
-# Longest Substring Without Repeating Characters - LeetCode
+# v2
+class Solution:
+    def addTwoNumbers(self, l1: Optional[ListNode], l2: Optional[ListNode]) -> Optional[ListNode]:
+        total = 0
+        current = ListNode(0)
+        dummyHead = current
+        while l1 or l2 or total:
+            if l1:
+                total += l1.val
+                l1 = l1.next
+            if l2:
+                total += l2.val
+                l2 = l2.next
+            newNode = ListNode(total %10)
+            current.next = newNode
+            current = current.next
+
+            # use total as carry for the next iteration
+            total = total // 10
+        
+        return dummyHead.next
+    
+
+# 3 Longest Substring Without Repeating Characters - LeetCode
 # https://leetcode.com/problems/longest-substring-without-repeating-characters/description/
 
 class Solution:
@@ -104,3 +183,64 @@ class Solution:
                 result = substr
             seen.clear()
         return len(result)
+
+# v2
+class Solution:
+    def lengthOfLongestSubstring(self, s: str) -> int:
+        ans = 0
+        for i in range(len(s)):
+            seen = set()
+            for j in range(i, len(s)):
+                if s[j] not in seen:
+                    seen.add(s[j])
+                else:
+                    break
+            ans = max(ans, len(seen))
+
+        return ans
+
+    def lengthOfLongestSubstring(self, s: str) -> int:
+        seen = set()
+        ans = 0
+        i = 0
+        j = 0
+        while i < len(s) and j < len(s):
+            if s[j] not in seen:
+                seen.add(s[j])
+                j += 1
+                ans = max(ans, len(seen))
+            else:
+                seen.remove(s[i])
+                i += 1
+        return ans
+    
+    
+# 4 Median of Two Sorted Arrays - LeetCode
+# https://leetcode.com/problems/median-of-two-sorted-arrays/submissions/
+
+class Solution:
+    def findMedianSortedArrays(self, nums1: List[int], nums2: List[int]) -> float:
+        result = []
+        i = 0
+        j = 0
+        while i < len(nums1) and j < len(nums2):
+          if nums1[i] < nums2[j]:
+            result.append(nums1[i])
+            i += 1
+          else:
+            result.append(nums2[j])
+            j += 1
+        
+        while i < len(nums1):
+            result.append(nums1[i])
+            i += 1
+        while j < len(nums2):
+            result.append(nums2[j])
+            j += 1
+        
+        result_len = len(result)
+        median_index = result_len // 2
+        if result_len % 2 == 1:
+          return result[median_index]
+        else:
+          return (result[median_index] + result[median_index-1])/2
