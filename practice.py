@@ -616,3 +616,229 @@ class Solution:
 # Rotate String - LeetCode
 # https://leetcode.com/problems/rotate-string/description/
 
+class Solution:
+    # remembered the idea to double the string to make it easy to do linear search
+    # extra space O(n) but search is O(2n)
+    def rotateString(self, s: str, goal: str) -> bool:
+        # rotation does not change the length
+        # rotation will preserve all the chars - we just want to see if first char is there
+        if len(s) != len(goal):
+            return False
+
+        goal = goal + goal
+
+        if s in goal:
+            return True
+        return False
+    
+    # trying to implement rotation using CG's way - implementation is ugly in python
+    def rotateString(self, s: str, goal: str) -> bool:
+        # convert both string to lists for efficiency
+        s = list(s)
+        goal = list(goal)
+        for rotation in range(len(s)):
+            if str(s) == str(goal):
+                return True
+            for i in range(len(s)-1):
+                s[i], s[i+1] = s[i+1], s[i]
+        return False
+
+    # what if we just rotate s and check each time - n rotation * n = O(n2)
+    def rotateString(self, s: str, goal: str) -> bool:
+        count = len(s)
+
+        while count:
+            s = s[1:] + s[0]
+            if s == goal:
+                return True
+            count -= 1
+        
+        return False
+    
+    # based on Editorial - brute force
+    # i tried this approach first, but could not figure out wrapping logic properly
+    # took a lot of effort to make it work and it is ugly
+    def rotateString(self, s: str, goal: str) -> bool:
+        if len(s) != len(goal):
+            return False
+        
+        n = len(s)
+        for start in range(n):
+            breaking = False
+            for i in range(n):
+                if s[(start + i) % n] != goal[i]:
+                    breaking = True
+                    break
+            # did we reach here by break or after matching all
+            if not breaking:
+                return True
+        return False
+
+    # trying a more elegant pythonic way 
+    def rotateString(self, s: str, goal: str) -> bool:
+        if len(s) != len(goal):
+            return False
+        
+        n = len(s)
+        for start in range(n):
+            if all(s[(start + i) % n] == goal[i] for i in range(n)):
+                return True
+        return False
+
+# Add Binary - LeetCode
+# https://leetcode.com/problems/add-binary/description/
+
+class Solution:
+    def addBinary(self, a: str, b: str) -> str:
+        result = []
+        carry = 0
+
+        n1 = len(a)
+        n2 = len(b)
+        i, j = n1-1, n2-1
+
+        while i >= 0 or j >= 0 or carry:
+            v1 = int(a[i]) if i >= 0 else 0
+            v2 = int(b[j]) if j >= 0 else 0
+            v = v1 + v2 + carry
+            result.append(str(v % 2))
+            carry = v // 2
+
+            i -=1
+            j -=1
+        
+        # don't forget to reverse the output as we are adding from the front
+        return "".join(result[::-1])
+
+    # reverse the inputs to make it easy
+    def addBinary(self, a: str, b: str) -> str:
+        a = a[::-1]
+        b = b[::-1]
+
+        carry = 0
+        result = []
+        n1, n2 = len(a), len(b)
+        i = j = 0
+        while i < n1 or j < n2 or carry:
+            v1 = int(a[i]) if i < n1 else 0
+            v2 = int(b[j]) if j < n2 else 0
+            v = v1 + v2 + carry
+            rem = v % 2
+            carry = v //2
+            result.append(str(rem))
+            i += 1
+            j +=1
+        
+        return "".join(result[::-1])
+
+    # reverse the inputs and pad them to make iteration easy
+    def addBinary(self, a: str, b: str) -> str:
+        # now reverse them
+        a = a[::-1]
+        b = b[::-1]
+
+        # pad the string to equal len
+        n1, n2 = len(a), len(b)
+
+        if n1 < n2: 
+            a = a + "0"* (n2-n1)
+        else:
+            b = b + "0" * (n1-n2)
+
+        result = []
+        carry = 0
+        n = max(n1, n2)
+        for i in range(n):
+            v1 = int(a[i])
+            v2 = int(b[i])
+            v = v1 +v2 + carry
+            rem = v % 2
+            carry = v // 2
+            result.append(str(rem))
+        
+        if carry:
+            result.append(str(carry))
+        
+        return "".join(result[::-1])
+
+# Find Minimum in Rotated Sorted Array - LeetCode
+# https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/description/
+
+class Solution:
+    def findMin(self, nums: List[int]) -> int:
+        if len(nums) == 1:
+            return nums[0]
+        # list is fully sorted
+        if nums[0] < nums[-1]:
+            return nums[0]
+
+        low = 0
+        high = len(nums) - 1
+
+        while low < high:
+            mid = (low + high) // 2
+            part1 = nums[: mid + 1]
+            part2 = nums[mid+1 :]
+            print(low, high, mid, part1, part2)
+
+            if part1[0] <= part1[-1]:
+                low = mid + 1
+            if part2[0] <= part2[-1]:
+                high = mid
+        print("mid at exit = ", mid)
+        return nums[mid+1]
+
+    # taking ideas from CG - no need for complicated extraction of 2 parts
+    # just use the midpointer and compare it to the first element
+    def findMin(self, nums: List[int]) -> int:
+        # if the array is already sorted and it has only 1 element
+        if nums[0] <= nums[-1]:
+            return nums[0]
+        
+        low = 0
+        high = len(nums) - 1
+
+        while low < high:
+            mid = (low + high)//2
+            if nums[0] <= nums[mid]:
+                low = mid + 1
+            else:
+                high = mid
+        
+        # low will have moved past mid, thus pointing at the first rotated element
+        return nums[low]
+
+# Min Stack - LeetCode
+# https://leetcode.com/problems/min-stack/description/
+
+class MinStack:
+    def __init__(self):
+        self.stack = []
+        self.min_stack = []
+        
+
+    def push(self, val: int) -> None:
+        if len(self.min_stack) == 0 or self.getMin() >= val:
+            self.min_stack.append(val)
+        self.stack.append(val)
+        
+
+    def pop(self) -> None:
+        val = self.stack.pop()
+        if val == self.getMin():
+            self.min_stack.pop()
+
+    def top(self) -> int:
+        return self.stack[-1]
+
+    def getMin(self) -> int:
+        return self.min_stack[-1]
+        
+
+
+# Your MinStack object will be instantiated and called as such:
+# obj = MinStack()
+# obj.push(val)
+# obj.pop()
+# param_3 = obj.top()
+# param_4 = obj.getMin()
