@@ -96,7 +96,7 @@ class Solution:
         item1_index = nums.index(item1)
         item2_index = nums.index(item2)
 
-        # TODO Got this part wrong
+        # Got this part wrong
         if item1_index == item2_index:
             item2_index = nums.index(item2, item1_index + 1)
 
@@ -339,8 +339,6 @@ class Solution:
             curr.next = list2
 
         return head.next
-
-#TODO recursive approach
 
 # Find the Difference - LeetCode
 # https://leetcode.com/problems/find-the-difference/description/
@@ -842,3 +840,154 @@ class MinStack:
 # obj.pop()
 # param_3 = obj.top()
 # param_4 = obj.getMin()
+
+# Rotting Oranges - LeetCode
+# https://leetcode.com/problems/rotting-oranges/submissions/1088259236/
+class Solution:
+    def orangesRotting(self, grid: List[List[int]]) -> int:
+        m = len(grid)
+        n  = len(grid[0])
+
+        def copy_grid():
+            grid_copy = [0] * m
+            for i in range(m):
+                grid_copy[i] = [grid[i][j] for j in range(n)]
+            return grid_copy
+
+        def count_fresh():
+            count = 0
+            for i in range(m):
+                for j in range(n):
+                    if grid[i][j] == 1:
+                        count +=1
+            return count
+        
+        def spread_rotting(i, j, grid):
+            count = 0
+            # left
+            if j > 0 and grid[i][j-1] == 1:
+                count +=1
+                grid[i][j-1] = 2
+            # right
+            if j < n - 1 and grid[i][j+1] == 1:
+                count +=1
+                grid[i][j+1] = 2
+            # up
+            if i > 0 and grid[i-1][j] == 1:
+                count +=1
+                grid[i-1][j] = 2
+            # down
+            if i < m - 1 and grid[i+1][j] == 1:
+                count +=1
+                grid[i+1][j] = 2
+            return count
+        
+        fresh_count = count_fresh()
+        min_max = m * n
+        min = 0
+        print("min=", min, "fresh=",fresh_count)
+        print("grid =", grid)
+        while min <= min_max and fresh_count > 0:
+            min += 1
+            grid_copy = copy_grid()
+
+            for i in range(m):
+                for j in range(n):
+                    if grid[i][j] == 2:
+                        affected = spread_rotting(i,j, grid_copy)
+                        fresh_count -= affected
+                        print(i,j, "affected=", affected)
+            print("min=", min, "fresh=",fresh_count)
+            print("grid =", grid, "grid_copy=", grid_copy)
+            grid = grid_copy
+        return min if min < min_max else -1
+
+    # process each rotten orange only once - idea picked up from CG
+    def orangesRotting(self, grid: List[List[int]]) -> int:
+        m = len(grid)
+        n = len(grid[0])
+
+        rotten = set()
+        fresh = set()
+
+        for i in range(m):
+            for j in range(n):
+                if grid[i][j] == 2: rotten.add((i,j))
+                if grid[i][j] == 1: fresh.add((i,j))
+        
+        min = 0
+        rotten_next = set()
+
+        def rot(i, j):
+            if (i,j) in fresh:
+                rotten_next.add((i,j))
+                fresh.remove((i,j))
+
+        def rot_neighbours(i, j):
+            rot(i-1, j)
+            rot(i+1, j)
+            rot(i, j-1)
+            rot(i, j+1)
+
+        while True:
+            # all fresh oranges rotten
+            if len(fresh) == 0:
+                return min
+
+            if len(rotten) == 0:
+                return -1
+
+            for item in rotten:
+                rot_neighbours(*item)
+            
+            min += 1
+            rotten = rotten_next
+            rotten_next = set()
+
+
+# Count Complete Tree Nodes - LeetCode
+# https://leetcode.com/problems/count-complete-tree-nodes/description/
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+from collections import deque
+class Solution:
+    def countNodes(self, root: Optional[TreeNode]) -> int:
+        que = deque()
+        que.append(root)
+        count = 0
+        while len(que) > 0:
+            node = que.popleft()
+            if node is None: continue
+            count +=1
+            que.append(node.left)
+            que.append(node.right)
+        return count
+    
+    # brilliant recursive solution in community
+    def countNodes(self, root: Optional[TreeNode]) -> int:
+        if root is None:
+            return 0
+        return 1 + self.countNodes(root.left) + self.countNodes(root.right)
+
+    # another beautiful O(logn) solution if it is a perfect BT. If not, then O(n)
+    def countNodes(self, root: Optional[TreeNode]) -> int:
+        if root is None:
+            return 0
+        
+        left = right = root
+        height_left = height_right = 0
+        while left:
+            height_left +=1
+            left = left.left
+        while right:
+            height_right +=1
+            right = right.right
+        
+        if height_left == height_right:
+            return 2 ** height_left - 1
+        
+        return 1 + self.countNodes(root.left) + self.countNodes(root.right)
