@@ -991,3 +991,63 @@ class Solution:
             return 2 ** height_left - 1
         
         return 1 + self.countNodes(root.left) + self.countNodes(root.right)
+
+# Continuous Subarray Sum - LeetCode
+# https://leetcode.com/problems/continuous-subarray-sum/
+
+class Solution:
+    def checkSubarraySum(self, nums: List[int], k: int) -> bool:
+        n = len(nums)
+
+        cum = [k] * n
+        for i in range(n):
+            for j in range(i+1):
+                new_mod = (nums[i] + cum[j]) % k
+                if new_mod == 0 and i != j:
+                    return True
+                cum[j] = new_mod
+        return False
+
+    def checkSubarraySum(self, nums: List[int], k: int) -> bool:
+        prefix = []
+        running_sum = 0
+        for num in nums:
+            running_sum  += num
+            running_sum %= k
+            prefix.append(running_sum)
+        seen = {}
+        for i in range(len(nums)):
+            # we will get a zero if the sum starts at index 0. 
+            # hence we need to check for length explicitly
+            if prefix[i] == 0 and i > 0:
+                return True
+            # this will handle sums which have a length of 2 from index 1 onwards
+            if prefix[i] in seen:
+                diff = i - seen[prefix[i]]
+                if diff > 1:
+                    return True
+                else:
+                    pass # we want to keep the first occurence of the value
+            else:
+                seen[prefix[i]] = i
+        return False       
+        #  failed [23,0,0] due to zeros
+        # [1,2,3] - how to diff this and 1,2, 12 and k=6
+
+    def checkSubarraySum(self, nums: List[int], k: int) -> bool:
+        prefix = []
+        running_sum = 0
+        for num in nums:
+            running_sum  += num
+            running_sum %= k
+            prefix.append(running_sum)
+
+        seen = set()
+        for i in range(len(prefix)):
+            if prefix[i] in seen:
+                return True
+            if i == 0:
+                seen.add(0)
+            else:
+                seen.add(prefix[i-1])
+        return False
