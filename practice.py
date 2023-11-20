@@ -1051,3 +1051,99 @@ class Solution:
             else:
                 seen.add(prefix[i-1])
         return False
+    
+    def checkSubarraySum(self, nums: List[int], k: int) -> bool:
+        # if the subarray starts at 0, this index will give the right answer
+        map = {0: -1}
+        rem = 0
+        for i, num in enumerate(nums):
+            rem += num
+            rem %= k
+
+            if rem not in map:
+                map[rem] = i
+            else:
+                last_index = map[rem]
+                if i - last_index >= 2:
+                    return True
+        return False
+
+# Group Anagrams - LeetCode
+# https://leetcode.com/problems/group-anagrams/description/?source=submission-ac
+class Solution:
+    def groupAnagrams(self, strs: List[str]) -> List[List[str]]:
+        # ascii fails for ["duh","ill"]
+        def ascii_total(str):
+            total = 0
+            for char in str:
+                total += ord(char)
+            return total
+
+        # hash fails for ["abbbbbbbbbbb","aaaaaaaaaaab"]
+        def hash_code(str):
+            xor = 0
+            for char in str:
+                xor ^= ord(char)
+            return xor
+        # false match for "ids","tic"
+        def same_string(s1, s2):
+            xor = 0
+            for char in s1:
+                xor ^= ord(char)
+            for char in s2:
+                xor ^= ord(char)
+            print("comparing", s1, s2, xor)
+            if xor == 0:
+                return True 
+            else:
+                return False
+        def same_string(s1, s2):
+            if sorted(s1) == sorted(s2):
+                return True 
+            else:
+                return False
+        def group_anagrams(strs):
+            matches = {}
+            collisions = []
+            for str in strs:
+                ascii = ascii_total(str)
+                hash = hash_code(str)
+                ascii_hash = f"{ascii}-{hash}"
+                if ascii_hash not in matches:
+                    matches[ascii_hash] = [str]
+                else:
+                    first = matches[ascii_hash][0]
+                    if same_string(first, str):
+                        matches[ascii_hash].append(str)
+                    else:
+                        collisions.append(str)
+            return list(matches.values()), collisions
+        
+        result = []
+        while True:
+            matches, collisions = group_anagrams(strs)
+            result.extend(matches)
+            if len(collisions) == 0:
+                return result
+            else:
+                # repeat the loop to process the collisions
+                strs = collisions
+    # trying the freq table approach from community
+    from collections import defaultdict
+    def groupAnagrams(self, strs: List[str]) -> List[List[str]]:
+        map = defaultdict(list)
+        for str in strs:
+            freq = [0]*26
+            for char in str:
+                freq[ord(char)-ord('a')] +=1
+            # convert to tuple as list can't be a key
+            freq = tuple(freq)
+            map[freq].append(str)
+        return list(map.values())
+    # rewrite to use sorted_str as key directly
+    def groupAnagrams(self, strs: List[str]) -> List[List[str]]:
+        map = defaultdict(list)
+        for str in strs:
+            key = ''.join(sorted(str))
+            map[key].append(str)
+        return list(map.values())
